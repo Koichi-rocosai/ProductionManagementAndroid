@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">ProductionManagementAndroid</string>
+    <string name="login_title">Login</string>
+    <string name="username_hint">ユーザー名</string>
+    <string name="password_hint">パスワード</string>
+    <string name="login_button">ログイン</string>
+    <string name="login_button_desc">ログインボタン</string>
+
+
+
+
+</resources>
