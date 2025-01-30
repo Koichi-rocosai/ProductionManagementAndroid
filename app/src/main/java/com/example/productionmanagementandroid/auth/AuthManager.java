@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONObject;
 
 import retrofit2.Call;
@@ -12,7 +14,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import com.example.productionmanagementandroid.auth.ApiClient;
-import com.example.productionmanagementandroid.utils.JwtUtils; // ✅ 修正: `JwtUtils` をインポート
+import com.example.productionmanagementandroid.utils.JwtUtils; // ✅ 修正: JwtUtils をインポート
 
 public class AuthManager {
     private final Context context;
@@ -36,7 +38,7 @@ public class AuthManager {
 
         authApi.login(request).enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 // HTTPレスポンスコードをログ出力
                 Log.d(TAG, "HTTP Code: " + response.code());
 
@@ -56,7 +58,7 @@ public class AuthManager {
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
                 Log.e(TAG, "通信エラー: " + t.getMessage());
                 Toast.makeText(context, "通信エラー: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
