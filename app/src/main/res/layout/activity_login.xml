@@ -3,15 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/dialog_background"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center_horizontal">
+    android:padding="32dp">
 
     <TextView
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:paddingBottom="20dp"
         android:text="@string/login_title"
         android:textColor="@android:color/black"
@@ -22,7 +22,6 @@
         android:id="@+id/editTextUsername"
         android:layout_width="350dp"
         android:layout_height="60dp"
-        android:layout_weight="1"
         android:autofillHints="username"
         android:background="@android:color/white"
         android:elevation="4dp"
@@ -39,7 +38,6 @@
         android:layout_width="350dp"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:layout_weight="1"
         android:autofillHints="password"
         android:background="@android:color/white"
         android:elevation="4dp"
@@ -51,17 +49,26 @@
         android:textColorHint="@android:color/black"
         android:textSize="18sp" />
 
+    <Spinner
+        android:id="@+id/spinnerLoginType"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:maxWidth="500dp"
+        android:padding="12dp" />
+
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="300dp"
-        android:maxWidth="500dp"
-        android:layout_weight="0"
         android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
         android:backgroundTint="@android:color/holo_blue_dark"
+        android:maxWidth="500dp"
         android:text="@string/login_button"
         android:textColor="@android:color/white"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal" />
+        android:textStyle="bold" />
 </LinearLayout>

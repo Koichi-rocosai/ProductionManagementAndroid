@@ -5,8 +5,5 @@
     <string name="password_hint">パスワード</string>
     <string name="login_button">ログイン</string>
     <string name="login_button_desc">ログインボタン</string>
-
-
-
-
+    <string name="title_activity_main_menu">メインメニュー</string>
 </resources>

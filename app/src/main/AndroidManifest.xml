@@ -19,6 +19,11 @@
         android:usesCleartextTraffic="true"> <!-- 🔹 `application` タグの中に記述 -->
 
         <activity
+            android:name=".MainMenuActivity"
+            android:exported="false"
+            android:label="@string/title_activity_main_menu"
+            android:theme="@style/Theme.ProductionManagementAndroid" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
