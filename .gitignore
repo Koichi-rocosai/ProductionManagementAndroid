@@ -1,21 +1,15 @@
-# Android関連
 *.iml
-/.gradle/
-/.idea/
+.gradle
 /local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
-/build/
-/captures/
-/output.json
-
-# Log files
-*.log
-
-# Keystore files
-*.keystore
-*.jks
-
-# Gradle Wrapper files
-gradlew
-gradlew.bat
-.gradle/
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
