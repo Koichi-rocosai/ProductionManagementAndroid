@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.productionmanagementandroid.auth.AuthManager;
 import com.example.productionmanagementandroid.auth.Stockroom;
 
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class ReceiveActivity extends AppCompatActivity {
         TextView textDisplayName = headerView.findViewById(R.id.textDisplayName);
         spinnerStockroom = headerView.findViewById(R.id.spinnerStockroom);
         TextView textHeaderTitle = headerView.findViewById(R.id.textHeaderTitle);
+        Button buttonLogout = headerView.findViewById(R.id.buttonLogout); // ログアウトボタンを取得
 
         // nullチェック
         if (textDisplayName == null) {
@@ -72,6 +75,9 @@ public class ReceiveActivity extends AppCompatActivity {
         }
         if (textHeaderTitle == null) {
             Log.e(TAG, "textHeaderTitle is null");
+        }
+        if (buttonLogout == null) {
+            Log.e(TAG, "buttonLogout is null");
         }
 
         if (textHeaderTitle != null) {
@@ -99,10 +105,34 @@ public class ReceiveActivity extends AppCompatActivity {
                 Log.e(TAG, "選択された作業場所名がSpinnerのアダプターに存在しません: " + selectedStockroom.getName());
             }
             // Spinnerを操作不可にする
-            //アダプター設定後に無効化
+            // Spinnerのクリックイベントを無効化
             spinnerStockroom.setEnabled(false);
             spinnerStockroom.setClickable(false);
         }
+        // ログアウトボタンのクリックイベントを設定
+        if (buttonLogout != null) {
+            buttonLogout.setOnClickListener(v -> {
+                // ログアウト処理を実装
+                logout();
+            });
+        }
+
+        // フッターの要素を取得
+        View footerView = findViewById(R.id.layoutFooter); // activity_receive.xml 内の footer を取得
+        if (footerView == null) {
+            Log.e(TAG, "footerView is null");
+            return;
+        }
+        Button buttonCloseApp = footerView.findViewById(R.id.buttonCloseApp); // アプリを閉じるボタンを取得
+        if (buttonCloseApp == null) {
+            Log.e(TAG, "buttonCloseApp is null");
+            return;
+        }
+        // アプリを閉じるボタンのクリックイベントを設定
+        buttonCloseApp.setOnClickListener(v -> {
+            // アプリを完全に閉じる処理を実装
+            closeApp();
+        });
     }
 
     private void setDisplayName(TextView textDisplayName) {
@@ -121,5 +151,24 @@ public class ReceiveActivity extends AppCompatActivity {
             stockroomNames.add(stockroom.getName());
         }
         return stockroomNames;
+    }
+
+    // ログアウト処理
+    private void logout() {
+        // AuthManagerを使用してログアウト処理を行う
+        AuthManager authManager = new AuthManager(this);
+        authManager.logout();
+
+        // ログイン画面に遷移
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    // アプリを完全に閉じる処理
+    private void closeApp() {
+        finishAffinity(); // アプリを完全に閉じる
+        // オプション: アプリを完全に閉じたことをシステムに通知する
+        // System.exit(0);
     }
 }
