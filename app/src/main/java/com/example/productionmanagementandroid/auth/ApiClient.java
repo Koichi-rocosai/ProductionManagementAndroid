@@ -13,7 +13,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
 public class ApiClient {
-    private static final String BASE_URL = "https://10.0.2.2:7246/";
+    private static final String BASE_URL = "http://192.168.31.171/";
     private static final String TAG = "ApiClient";
     private static volatile Retrofit retrofit = null; // volatile を追加
 
