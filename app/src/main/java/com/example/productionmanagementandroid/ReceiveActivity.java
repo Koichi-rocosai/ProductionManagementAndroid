@@ -1,15 +1,19 @@
 package com.example.productionmanagementandroid;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.productionmanagementandroid.auth.AuthManager;
@@ -21,6 +25,7 @@ import java.util.List;
 public class ReceiveActivity extends AppCompatActivity {
 
     private static final String TAG = "ReceiveActivity";
+    private static final String HINT_ITEM = "作業場所を選択"; // ヒント用のアイテム
     private Stockroom selectedStockroom; // 選択されたStockroomオブジェクトを保持
     private String displayName;
     private Spinner spinnerStockroom; // ヘッダーのSpinner
@@ -90,11 +95,9 @@ public class ReceiveActivity extends AppCompatActivity {
         }
 
         // Spinnerに選択された作業場所名を表示
-        if (spinnerStockroom != null && selectedStockroom != null) {
+        if (spinnerStockroom != null) {
             // Spinnerに表示するデータを設定
-            List<String> stockroomNames = getStockroomNames(stockrooms);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, stockroomNames);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            ArrayAdapter<String> adapter = createSpinnerAdapter(stockrooms);
             spinnerStockroom.setAdapter(adapter);
 
             // Spinnerの選択を強制的に設定
@@ -104,10 +107,32 @@ public class ReceiveActivity extends AppCompatActivity {
             } else {
                 Log.e(TAG, "選択された作業場所名がSpinnerのアダプターに存在しません: " + selectedStockroom.getName());
             }
-            // Spinnerを操作不可にする
-            // Spinnerのクリックイベントを無効化
-            spinnerStockroom.setEnabled(false);
-            spinnerStockroom.setClickable(false);
+            // Spinnerを操作可能にする
+            // Spinnerのクリックイベントを有効化
+            spinnerStockroom.setEnabled(true);
+            spinnerStockroom.setClickable(true);
+            // Spinnerのアイテム選択時の処理
+            spinnerStockroom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (position > 0) { // ヒントアイテム以外が選択された場合
+                        String selectedName = (String) parent.getItemAtPosition(position);
+                        selectedStockroom = findStockroomByName(selectedName);
+                        if (selectedStockroom != null) {
+                            Log.d(TAG, "選択された作業場所: " + selectedStockroom.getName() + ", ID: " + selectedStockroom.getId());
+                        } else {
+                            Log.e(TAG, "選択された作業場所が見つかりません: " + selectedName);
+                        }
+                    } else {
+                        selectedStockroom = null; // ヒントアイテムが選択された場合はnullにする
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    selectedStockroom = null;
+                }
+            });
         }
         // ログアウトボタンのクリックイベントを設定
         if (buttonLogout != null) {
@@ -144,13 +169,36 @@ public class ReceiveActivity extends AppCompatActivity {
         }
     }
 
-    // Stockroomのリストから作業場所名のリストを取得するメソッド
-    private List<String> getStockroomNames(List<Stockroom> stockrooms) {
+    private ArrayAdapter<String> createSpinnerAdapter(List<Stockroom> stockrooms) {
         List<String> stockroomNames = new ArrayList<>();
+        stockroomNames.add(HINT_ITEM); // ヒント用のアイテムを先頭に追加
         for (Stockroom stockroom : stockrooms) {
             stockroomNames.add(stockroom.getName());
         }
-        return stockroomNames;
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(ReceiveActivity.this, android.R.layout.simple_spinner_item, stockroomNames) {
+            @Override
+            public boolean isEnabled(int position) {
+                // ヒント用のアイテムを選択不可にする
+                return position != 0;
+            }
+
+            @NonNull
+            @Override
+            public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // ヒント用のアイテムのテキストカラーを変更
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    // ヒント用のアイテム以外のテキストカラーを黒に変更
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return adapter;
     }
 
     // ログアウト処理
@@ -170,5 +218,17 @@ public class ReceiveActivity extends AppCompatActivity {
         finishAffinity(); // アプリを完全に閉じる
         // オプション: アプリを完全に閉じたことをシステムに通知する
         // System.exit(0);
+    }
+
+    // 名前からStockroomオブジェクトを検索するメソッド
+    private Stockroom findStockroomByName(String name) {
+        if (stockrooms != null) {
+            for (Stockroom stockroom : stockrooms) {
+                if (stockroom.getName().equals(name)) {
+                    return stockroom;
+                }
+            }
+        }
+        return null;
     }
 }
