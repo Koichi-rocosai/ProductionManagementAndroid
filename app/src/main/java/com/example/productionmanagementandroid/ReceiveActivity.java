@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +27,8 @@ import java.util.List;
 public class ReceiveActivity extends AppCompatActivity {
 
     private static final String TAG = "ReceiveActivity";
+    private String PRODUCT_SERIAL_NO;
+    private String DIVISION_NO;
     private static final String HINT_ITEM = "作業場所を選択"; // ヒント用のアイテム
     private Stockroom selectedStockroom; // 選択されたStockroomオブジェクトを保持
     private String displayName;
@@ -158,6 +162,40 @@ public class ReceiveActivity extends AppCompatActivity {
             // アプリを完全に閉じる処理を実装
             closeApp();
         });
+        // 製品シリアル番号入力欄の要素を取得
+        EditText editTextProductSerial = findViewById(R.id.editTextProductSerial);
+        if (editTextProductSerial == null) {
+            Log.e(TAG, "editTextProductSerial is null");
+        } else {
+            // 改行されたときの処理
+            editTextProductSerial.setOnKeyListener((v, keyCode, event) -> {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    String productSerial = editTextProductSerial.getText().toString();
+                    if (!productSerial.isEmpty()) {
+                        String[] values = productSerial.split(",");
+                        if (values.length >= 2) {
+                            PRODUCT_SERIAL_NO = values[0];
+                            DIVISION_NO = values[1];
+
+                            //editTextProductSerialにはPRODUCT_SERIAL_NOのみ表示
+                            editTextProductSerial.setText(PRODUCT_SERIAL_NO);
+
+                            // APIに渡す処理
+                            // https://localhost:7246/api/ProductionInfo/CheckProductionInfo?productSerialNo=839&divisionNo=0
+                            Log.d(TAG, "PRODUCT_SERIAL_NO: " + PRODUCT_SERIAL_NO);
+                            Log.d(TAG, "DIVISION_NO: " + DIVISION_NO);
+                            Toast.makeText(this, "入力された製品シリアル番号: " + productSerial + " PRODUCT_SERIAL_NO: " + PRODUCT_SERIAL_NO + " DIVISION_NO: " + DIVISION_NO, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "入力された値が不正です: " + productSerial);
+                            Toast.makeText(this, "入力された値が不正です: " + productSerial, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+
     }
 
     private void setDisplayName(TextView textDisplayName) {
