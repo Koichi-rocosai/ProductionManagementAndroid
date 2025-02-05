@@ -21,6 +21,7 @@ import com.example.productionmanagementandroid.auth.ApiClient;
 import com.example.productionmanagementandroid.auth.AuthManager;
 import com.example.productionmanagementandroid.auth.Stockroom;
 import com.example.productionmanagementandroid.auth.StockroomApi;
+import com.example.productionmanagementandroid.auth.User; // User クラスをインポート
 import com.example.productionmanagementandroid.ui.dialogs.LoginDialogFragment;
 
 import java.util.ArrayList;
@@ -30,12 +31,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoginDialogFragment.LoginSuccessListener {
 
     private static final String TAG = "MainActivity";
     private static final String HINT_ITEM = "作業場所を選択"; // ヒント用のアイテム
-    private AuthManager authManager;
-    private String selectedStockroomNameFromLogin = null; // LoginDialogFragmentから受け取った作業場所の名前を保持
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        authManager = new AuthManager(this);
+        AuthManager authManager = new AuthManager(this); // authManager をローカル変数に変更
 
         Log.d(TAG, "アプリ起動 - LoginDialogFragment を表示");
 
@@ -58,30 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
         // StockroomApi を使用して API からデータを取得し、spinnerLoginType にリストを格納する処理
         fetchStockrooms(loginDialogFragment);
-
-        // LoginDialogFragment のコールバックを設定
-        loginDialogFragment.setLoginDialogListener((username, password, selectedStockroomName) -> {
-            // ログイン処理を実行
-            authManager.login(username, password, new AuthManager.LoginCallback() {
-                @Override
-                public void onSuccess() {
-                    // ログイン成功時の処理
-                    Log.d(TAG, "ログイン成功 - MainMenuActivity に遷移");
-                    Toast.makeText(MainActivity.this, "ログイン成功", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
-                    intent.putExtra("selectedStockroomName", selectedStockroomName); // 作業場所の情報を渡す
-                    startActivity(intent);
-                    finish(); // MainActivity を終了
-                }
-
-                @Override
-                public void onFailure(String message) {
-                    // ログイン失敗時の処理
-                    Log.e(TAG, "ログイン失敗: " + message);
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
     }
 
     private void fetchStockrooms(LoginDialogFragment loginDialogFragment) {
@@ -138,5 +113,17 @@ public class MainActivity extends AppCompatActivity {
         };
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         return adapter;
+    }
+
+    @Override
+    public void onLoginSuccess(User user, String selectedStockroomName) {
+        // ログイン成功時の処理
+        Log.d(TAG, "ログイン成功 - MainMenuActivity に遷移");
+        Toast.makeText(MainActivity.this, "ログイン成功", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(MainActivity.this, MainMenuActivity.class);
+        intent.putExtra("selectedStockroomName", selectedStockroomName); // 作業場所の情報を渡す
+        intent.putExtra("user", user); // Userオブジェクトを渡す
+        startActivity(intent);
+        finish(); // MainActivity を終了
     }
 }

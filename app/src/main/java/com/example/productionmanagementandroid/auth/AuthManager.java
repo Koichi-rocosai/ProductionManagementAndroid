@@ -3,7 +3,6 @@ package com.example.productionmanagementandroid.auth;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.security.crypto.EncryptedSharedPreferences;
@@ -30,7 +29,7 @@ public class AuthManager {
 
     // コールバックインターフェース
     public interface LoginCallback {
-        void onSuccess();
+        void onSuccess(User user); // com.example.productionmanagementandroid.auth.User を使用
         void onFailure(String message);
     }
 
@@ -62,7 +61,7 @@ public class AuthManager {
 
         Log.d(TAG, "ログインリクエスト送信: username=" + username + ", password=****");
 
-        authApi.login(request).enqueue(new Callback<>() {
+        authApi.login(request).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 Log.d(TAG, "HTTP Code: " + response.code());
@@ -73,13 +72,11 @@ public class AuthManager {
                     encryptedSharedPreferences.edit().putString(ACCESS_TOKEN_KEY, token).apply();
 
                     Log.d(TAG, "ログイン成功 - Token: " + token);
-                    //Toast.makeText(context, "ログイン成功", Toast.LENGTH_SHORT).show(); // MainActivity に移動
 
-                    decodeAndLogToken(token);
-                    callback.onSuccess(); // ログイン成功を通知
+                    User user = decodeAndLogToken(token); // com.example.productionmanagementandroid.auth.User を使用
+                    callback.onSuccess(user); // ログイン成功を通知
                 } else {
                     Log.e(TAG, "ログイン失敗 - HTTP Code: " + response.code() + ", Message: " + response.message());
-                    //Toast.makeText(context, "ログイン失敗: " + response.message(), Toast.LENGTH_SHORT).show(); // MainActivity に移動
                     callback.onFailure("ログイン失敗: " + response.message());
                 }
             }
@@ -87,14 +84,14 @@ public class AuthManager {
             @Override
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
                 Log.e(TAG, "通信エラー: " + t.getMessage());
-                //Toast.makeText(context, "通信エラー: " + t.getMessage(), Toast.LENGTH_LONG).show(); // MainActivity に移動
                 callback.onFailure("通信エラー: " + t.getMessage());
             }
         });
     }
 
-    private void decodeAndLogToken(String token) {
+    private User decodeAndLogToken(String token) { // com.example.productionmanagementandroid.auth.User を返すように変更
         JSONObject payload = JwtUtils.decodeJwtPayload(token);
+        User user = new User(); // com.example.productionmanagementandroid.auth.User のインスタンスを作成
         if (payload != null) {
             Log.d(TAG, "JWTペイロード: " + payload);
 
@@ -106,14 +103,20 @@ public class AuthManager {
             Log.d(TAG, "表示名: " + displayName);
             Log.d(TAG, "アウトソーシングID: " + outsourcingId);
 
-            saveDisplayName(displayName);
+            user.setUsername(username);
+            user.setDisplayName(displayName);
+            user.setOutsourcingId(outsourcingId);
+            user.setAccessToken(token);
+
+            saveDisplayName(user);
         } else {
             Log.e(TAG, "JWTの解析に失敗");
         }
+        return user;
     }
 
-    private void saveDisplayName(String displayName) {
-        encryptedSharedPreferences.edit().putString(DISPLAY_NAME_KEY, displayName).apply();
+    private void saveDisplayName(User user) { // com.example.productionmanagementandroid.auth.User を引数に取るように変更
+        encryptedSharedPreferences.edit().putString(DISPLAY_NAME_KEY, user.getDisplayName()).apply();
     }
 
     public String getDisplayName() {
@@ -121,7 +124,7 @@ public class AuthManager {
     }
 
     public void logout() {
-        encryptedSharedPreferences.edit().remove(ACCESS_TOKEN_KEY).remove(DISPLAY_NAME_KEY).apply();
+        encryptedSharedPreferences.edit().remove(ACCESS_TOKEN_KEY).apply();
     }
 
     public String getAccessToken() {

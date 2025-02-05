@@ -49,16 +49,6 @@
         android:textColorHint="@android:color/black"
         android:textSize="18sp" />
 
-    <Spinner
-        android:id="@+id/spinnerLoginType"
-        android:layout_width="300dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:background="@android:color/white"
-        android:elevation="4dp"
-        android:maxWidth="500dp"
-        android:padding="12dp" />
-
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="300dp"
@@ -71,4 +61,30 @@
         android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerLoginType"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:maxWidth="500dp"
+        android:padding="12dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/buttonSelectArea"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:maxWidth="500dp"
+        android:text="@string/select_area_button"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
 </LinearLayout>

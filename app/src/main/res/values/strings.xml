@@ -19,6 +19,8 @@
     <string name="cancel">キャンセル</string>
     <string name="close_app">アプリを閉じる</string>
     <string name="main_menu_title">Main Menu</string>
+    <string name="select_area_button">決定</string>
+    <string name="login_check_button">ログインチェック</string>
 
     <!-- activity_receive.xml用 -->
     <string name="product_serial_hint">製品シリアルを入力</string>
