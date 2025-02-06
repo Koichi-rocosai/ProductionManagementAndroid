@@ -18,7 +18,7 @@ import java.util.List;
 public class SpinnerAdapterCreator {
 
     private static final String TAG = "SpinnerAdapterCreator";
-    private static final String HINT_ITEM = "作業場所を選択"; // スピナーのヒント用アイテム
+    private static final String HINT_ITEM = "倉庫場所を選択"; // スピナーのヒント用アイテム
     private Context context;
 
     public SpinnerAdapterCreator(Context context) {
@@ -26,9 +26,9 @@ public class SpinnerAdapterCreator {
     }
 
     /**
-     * 作業場所のリストからスピナー用のアダプターを作成する。
+     * 倉庫場所のリストからスピナー用のアダプターを作成する。
      *
-     * @param stockrooms 作業場所のリスト。
+     * @param stockrooms 倉庫場所のリスト。
      * @return スピナー用のアダプター。
      */
     public ArrayAdapter<String> createSpinnerAdapter(List<Stockroom> stockrooms) {

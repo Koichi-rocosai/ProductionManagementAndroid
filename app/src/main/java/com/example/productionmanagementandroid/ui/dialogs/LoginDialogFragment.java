@@ -133,6 +133,8 @@ public class LoginDialogFragment extends DialogFragment {
                 if (loginSuccessListener != null) {
                     Log.d(TAG, "buttonSelectArea: LoginSuccessListener が存在します");
                     loginUser.setWorkplaceId(selectedWorkplace.getId());
+                    // ダイアログを閉じる前にユーザー情報を Logcat に出力
+                    Log.d(TAG, "buttonSelectArea: ダイアログを閉じる前のユーザー情報: " + loginUser.toString());
                     loginSuccessListener.onLoginSuccess(loginUser, selectedWorkplace.getId());
                     Log.d(TAG, "buttonSelectArea: onLoginSuccess が呼び出されました");
                 }
@@ -177,7 +179,7 @@ public class LoginDialogFragment extends DialogFragment {
                 Log.d(TAG, "fetchWorkplaces: onResponse: 開始");
                 // レスポンスが成功し、かつボディが null でない場合
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "fetchWorkplaces: onResponse: APIからのデータ取得に成功");
+                    Log.d(TAG, "fetchWorkplaces: onResponse:APIからのデータ取得に成功");
                     // レスポンスボディから作業場所のリストを取得
                     List<Workplace> workplaces = response.body();
                     Log.d(TAG, "fetchWorkplaces: onResponse: 取得した作業場所の数:" + workplaces.size());
