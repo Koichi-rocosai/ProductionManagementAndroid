@@ -25,7 +25,7 @@ import java.util.List;
 public class HeaderManager {
 
     private static final String TAG = "HeaderManager";
-    private static final String HINT_ITEM = "作業場所を選択";
+    private static final String HINT_ITEM = "倉庫名を選択";
     private final AppCompatActivity activity;
     private final TextView textDisplayName;
     private final Spinner spinnerStockroom;
@@ -77,7 +77,7 @@ public class HeaderManager {
             if (position != -1) {
                 spinnerStockroom.setSelection(position);
             } else {
-                Log.e(TAG, "選択された作業場所名がSpinnerのアダプターに存在しません: " + selectedStockroom.getName());
+                Log.e(TAG, "選択された倉庫名がSpinnerのアダプターに存在しません: " + selectedStockroom.getName());
             }
 
             spinnerStockroom.setEnabled(true);
@@ -91,7 +91,7 @@ public class HeaderManager {
                         if (selectedStockroom != null) {
                             Log.d(TAG, "選択された作業場所: " + selectedStockroom.getName() + ", ID: " + selectedStockroom.getId());
                         } else {
-                            Log.e(TAG, "選択された作業場所が見つかりません: " + selectedName);
+                            Log.e(TAG, "選択された倉庫名が見つかりません: " + selectedName);
                         }
                     } else {
                         selectedStockroom = null;

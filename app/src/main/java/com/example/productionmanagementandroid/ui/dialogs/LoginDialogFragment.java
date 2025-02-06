@@ -129,7 +129,7 @@ public class LoginDialogFragment extends DialogFragment {
             Log.d(TAG, "buttonSelectArea: クリックされました");
             if (selectedWorkplace != null) {
                 // 作業場所が選択されている場合
-                Log.d(TAG, "buttonSelectArea: 作業場所が選択されています - 作業場所ID: " + selectedWorkplace.getId());
+                Log.d(TAG, "buttonSelectArea: 作業場所が選択されています - [WORK_PLACE_ID]: " + selectedWorkplace.getId());
                 if (loginSuccessListener != null) {
                     Log.d(TAG, "buttonSelectArea: LoginSuccessListener が存在します");
                     loginUser.setWorkplaceId(selectedWorkplace.getId());
@@ -195,7 +195,7 @@ public class LoginDialogFragment extends DialogFragment {
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                             selectedWorkplace = (Workplace) parent.getItemAtPosition(position);
                             Log.d(TAG, "fetchWorkplaces: onResponse: 作業場所が選択されました: " + selectedWorkplace.getName());
-                            Log.d(TAG, "fetchWorkplaces: onResponse: 作業場所ID: " + selectedWorkplace.getId());
+                            Log.d(TAG, "fetchWorkplaces: onResponse: [WORK_PLACE_ID]: " + selectedWorkplace.getId());
                         }
 
                         @Override

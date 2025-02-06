@@ -31,7 +31,7 @@ import retrofit2.Response;
 public class MainMenuActivity extends AppCompatActivity {
 
     private static final String TAG = "MainMenuActivity";
-    private static final String HINT_ITEM = "作業場所を選択"; // ヒント用のアイテム
+    private static final String HINT_ITEM = "倉庫名を選択"; // ヒント用のアイテム
     private String selectedStockroomName = null; // 選択された作業場所の名前を保持
     private String displayName = null; // 表示名を保持
     private Spinner spinnerStockroom;
@@ -47,7 +47,7 @@ public class MainMenuActivity extends AppCompatActivity {
         // Intentから作業場所の名前を受け取る
         Intent intent = getIntent();
         selectedStockroomName = intent.getStringExtra("selectedStockroomName");
-        Log.d(TAG, "受け取った作業場所名: " + selectedStockroomName);
+        Log.d(TAG, "受け取った倉庫名: " + selectedStockroomName);
 
         // ヘッダーの要素を取得
         View headerView = findViewById(R.id.header); // header.xmlをincludeしたViewを取得
@@ -99,7 +99,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 intentToReceive.putParcelableArrayListExtra("stockrooms", new ArrayList<>(stockrooms)); // Stockroomのリストを渡す
                 startActivity(intentToReceive);
             } else {
-                Toast.makeText(this, "作業場所が選択されていません", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "倉庫名が選択されていません", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "selectedStockroom is null");
             }
         });
@@ -127,9 +127,9 @@ public class MainMenuActivity extends AppCompatActivity {
                     String selectedName = (String) parent.getItemAtPosition(position);
                     selectedStockroom = findStockroomByName(selectedName);
                     if (selectedStockroom != null) {
-                        Log.d(TAG, "選択された作業場所: " + selectedStockroom.getName() + ", ID: " + selectedStockroom.getId());
+                        Log.d(TAG, "選択された倉庫名: " + selectedStockroom.getName() + ", ID: " + selectedStockroom.getId());
                     } else {
-                        Log.e(TAG, "選択された作業場所が見つかりません: " + selectedName);
+                        Log.e(TAG, "選択された倉庫名が見つかりません: " + selectedName);
                     }
                 } else {
                     selectedStockroom = null; // ヒントアイテムが選択された場合はnullにする
@@ -209,7 +209,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 spinnerStockroom.setSelection(position);
                 selectedStockroom = findStockroomByName(selectedStockroomName);
             } else {
-                Log.e(TAG, "選択された作業場所名がリストに存在しません: " + selectedStockroomName);
+                Log.e(TAG, "選択された倉庫名がリストに存在しません: " + selectedStockroomName);
             }
         }
     }
