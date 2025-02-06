@@ -5,8 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -25,14 +23,13 @@ public class LoginDialogFragment extends DialogFragment {
 
     private static final String TAG = "LoginDialog";
     private Spinner spinnerLoginType;
-    private String selectedStockroomName = null; // 選択された作業場所の名前を保持
     private AuthManager authManager;
     private LoginSuccessListener loginSuccessListener;
     private Button buttonLogin;
     private Button buttonSelectArea;
 
     public interface LoginSuccessListener {
-        void onLoginSuccess(User user, String selectedStockroomName);
+        void onLoginSuccess(User user, String selectedItem);
     }
 
     @Override
@@ -98,16 +95,11 @@ public class LoginDialogFragment extends DialogFragment {
         });
 
         buttonSelectArea.setOnClickListener(v -> {
-            if (selectedStockroomName != null) {
-                // 作業場所が選択されている場合
-                if (loginSuccessListener != null) {
-                    loginSuccessListener.onLoginSuccess(null, selectedStockroomName); // ユーザー情報はまだないのでnull
-                }
-                dismiss(); // ダイアログを閉じる
-            } else {
-                // 作業場所が選択されていない場合
-                Toast.makeText(getActivity(), "作業場所を選択してください", Toast.LENGTH_SHORT).show();
+            // 作業場所が選択されている場合
+            if (loginSuccessListener != null) {
+                loginSuccessListener.onLoginSuccess(null, null); // ユーザー情報はまだないのでnull
             }
+            dismiss(); // ダイアログを閉じる
         });
 
         Log.d(TAG, "LoginDialogFragment が表示された");
@@ -116,32 +108,5 @@ public class LoginDialogFragment extends DialogFragment {
                 .setView(view)
                 .setCancelable(false)
                 .create();
-    }
-
-    public void setSpinnerAdapter(ArrayAdapter<String> adapter) {
-        if (spinnerLoginType != null) {
-            spinnerLoginType.setAdapter(adapter);
-            spinnerLoginType.setSelection(0); // 初期選択をヒントにする
-            spinnerLoginType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (position == 0) {
-                        // ヒントが選択された場合は何もしない
-                        selectedStockroomName = null; // ヒントが選択された場合は null を設定
-                        Log.d(TAG, "ヒントが選択されました");
-                    } else {
-                        // ヒント以外のアイテムが選択された場合の処理
-                        selectedStockroomName = (String) parent.getItemAtPosition(position); // 選択された作業場所の名前を保持
-                        Log.d(TAG, "作業場所が選択されました: " + selectedStockroomName);
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    // 何も選択されなかった場合の処理
-                    selectedStockroomName = null; // 何も選択されなかった場合は null を設定
-                }
-            });
-        }
     }
 }
