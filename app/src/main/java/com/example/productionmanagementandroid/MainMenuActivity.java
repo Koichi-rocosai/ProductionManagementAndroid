@@ -32,7 +32,6 @@ public class MainMenuActivity extends AppCompatActivity {
 
     private static final String TAG = "MainMenuActivity";
     private static final String HINT_ITEM = "作業場所を選択"; // ヒント用のアイテム
-    private String selectedStockroomName = null; // 選択された作業場所の名前を保持
     private String displayName = null; // 表示名を保持
     private Spinner spinnerStockroom;
     private Button buttonReceive; // buttonReceiveをクラス変数として追加
@@ -44,10 +43,10 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        // Intentから作業場所の名前を受け取る
-        Intent intent = getIntent();
-        selectedStockroomName = intent.getStringExtra("selectedStockroomName");
-        Log.d(TAG, "受け取った作業場所名: " + selectedStockroomName);
+        // Intentから作業場所の名前を受け取る処理を削除
+        // Intent intent = getIntent();
+        // selectedStockroomName = intent.getStringExtra("selectedStockroomName");
+        // Log.d(TAG, "受け取った作業場所名: " + selectedStockroomName);
 
         // ヘッダーの要素を取得
         View headerView = findViewById(R.id.header); // header.xmlをincludeしたViewを取得
@@ -154,7 +153,7 @@ public class MainMenuActivity extends AppCompatActivity {
                     stockrooms = response.body(); // APIから取得したStockroomのリストを保持
                     ArrayAdapter<String> adapter = createSpinnerAdapter(stockrooms);
                     spinnerStockroom.setAdapter(adapter);
-                    setSpinnerStockroom(adapter);
+                    // setSpinnerStockroom(adapter); // この行を削除
                     buttonReceive.setEnabled(true); // API通信が完了したら有効化
                 } else {
                     Log.e(TAG, "APIからのデータ取得に失敗: " + response.message());
@@ -199,19 +198,6 @@ public class MainMenuActivity extends AppCompatActivity {
         };
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         return adapter;
-    }
-
-    private void setSpinnerStockroom(ArrayAdapter<String> adapter) {
-        // 初期選択を設定
-        if (selectedStockroomName != null) {
-            int position = adapter.getPosition(selectedStockroomName);
-            if (position != -1) {
-                spinnerStockroom.setSelection(position);
-                selectedStockroom = findStockroomByName(selectedStockroomName);
-            } else {
-                Log.e(TAG, "選択された作業場所名がリストに存在しません: " + selectedStockroomName);
-            }
-        }
     }
 
     private void setDisplayName(TextView textDisplayName) {

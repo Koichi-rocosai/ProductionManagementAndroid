@@ -10,10 +10,16 @@ public class Stockroom implements Parcelable {
     private int id;
     @SerializedName("name")
     private String name;
+    @SerializedName("outsourcingId")
+    private Integer outsourcingId; // Integer型に変更
+    @SerializedName("workPlaceId")
+    private int workPlaceId;
 
-    public Stockroom(int id, String name) {
+    public Stockroom(int id, String name, Integer outsourcingId, int workPlaceId) {
         this.id = id;
         this.name = name;
+        this.outsourcingId = outsourcingId;
+        this.workPlaceId = workPlaceId;
     }
 
     public int getId() {
@@ -24,10 +30,22 @@ public class Stockroom implements Parcelable {
         return name;
     }
 
+    public Integer getOutsourcingId() {
+        return outsourcingId;
+    }
+
+    public int getWorkPlaceId() {
+        return workPlaceId;
+    }
+
     // Parcelable の実装
     protected Stockroom(Parcel in) {
         id = in.readInt();
         name = in.readString();
+        // Integer型はreadInt()ではなく、readInt()で読み込み、0の場合はnullにする
+        int tmpOutsourcingId = in.readInt();
+        outsourcingId = tmpOutsourcingId == 0 ? null : tmpOutsourcingId;
+        workPlaceId = in.readInt();
     }
 
     public static final Creator<Stockroom> CREATOR = new Creator<Stockroom>() {
@@ -51,5 +69,8 @@ public class Stockroom implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(name);
+        // Integer型はwriteInt()で書き込み、nullの場合は0を書き込む
+        dest.writeInt(outsourcingId == null ? 0 : outsourcingId);
+        dest.writeInt(workPlaceId);
     }
 }
