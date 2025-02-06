@@ -9,16 +9,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.productionmanagementandroid.auth.AuthManager;
 import com.example.productionmanagementandroid.auth.Stockroom;
 import com.example.productionmanagementandroid.managers.FooterManager;
 import com.example.productionmanagementandroid.managers.HeaderManager;
 import com.example.productionmanagementandroid.managers.InputDataManager;
 
-import java.util.List;
-
 public class ReceiveActivity extends AppCompatActivity {
 
     private static final String TAG = "ReceiveActivity";
+    private HeaderManager headerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +35,12 @@ public class ReceiveActivity extends AppCompatActivity {
         }
         Stockroom selectedStockroom = intent.getParcelableExtra("selectedStockroom");
         String displayName = intent.getStringExtra("displayName");
-        List<Stockroom> stockrooms = intent.getParcelableArrayListExtra("stockrooms");
         Log.d(TAG, "selectedStockroomName: " + selectedStockroom.getName());
         Log.d(TAG, "displayName: " + displayName);
 
         // nullチェック
-        if (selectedStockroom == null || displayName == null || stockrooms == null) {
-            Log.e(TAG, "selectedStockroom or displayName or stockrooms is null");
+        if (selectedStockroom == null || displayName == null) {
+            Log.e(TAG, "selectedStockroom or displayName is null");
             Toast.makeText(this, "必要な情報が不足しています", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -55,8 +54,20 @@ public class ReceiveActivity extends AppCompatActivity {
         }
 
         // ヘッダーマネージャーの初期化
-        HeaderManager headerManager = new HeaderManager(this, headerView, stockrooms, selectedStockroom, displayName);
-        headerManager.initialize(); // 初期化処理を呼び出す
+        headerManager = new HeaderManager(this, headerView);
+        headerManager.getTextHeaderTitle().setText(R.string.receive_title); // ヘッダーのタイトルを設定
+        headerManager.getTextDisplayName().setText(displayName); // 表示名を設定
+        headerManager.setSelectedStockroom(selectedStockroom); // 選択された作業場所を設定
+
+        // ログアウトボタンのクリックリスナー
+        headerManager.getButtonLogout().setOnClickListener(v -> {
+            AuthManager authManager = new AuthManager(this);
+            authManager.logout();
+            // ログイン画面に戻る
+            Intent intentToMain = new Intent(ReceiveActivity.this, MainActivity.class);
+            startActivity(intentToMain);
+            finish();
+        });
 
         // フッターの要素を取得
         View footerView = findViewById(R.id.layoutFooter);

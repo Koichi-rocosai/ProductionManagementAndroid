@@ -1,16 +1,10 @@
 package com.example.productionmanagementandroid;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +14,7 @@ import com.example.productionmanagementandroid.auth.ApiClient;
 import com.example.productionmanagementandroid.auth.AuthManager;
 import com.example.productionmanagementandroid.auth.Stockroom;
 import com.example.productionmanagementandroid.auth.StockroomApi;
+import com.example.productionmanagementandroid.managers.HeaderManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,30 +26,21 @@ import retrofit2.Response;
 public class MainMenuActivity extends AppCompatActivity {
 
     private static final String TAG = "MainMenuActivity";
-    private static final String HINT_ITEM = "作業場所を選択"; // ヒント用のアイテム
     private String displayName = null; // 表示名を保持
-    private Spinner spinnerStockroom;
     private Button buttonReceive; // buttonReceiveをクラス変数として追加
-    private List<Stockroom> stockrooms; // APIから取得したStockroomのリストを保持
-    private Stockroom selectedStockroom; // 選択されたStockroomオブジェクトを保持
+    private HeaderManager headerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        // Intentから作業場所の名前を受け取る処理を削除
-        // Intent intent = getIntent();
-        // selectedStockroomName = intent.getStringExtra("selectedStockroomName");
-        // Log.d(TAG, "受け取った作業場所名: " + selectedStockroomName);
-
         // ヘッダーの要素を取得
         View headerView = findViewById(R.id.header); // header.xmlをincludeしたViewを取得
-        TextView textDisplayName = headerView.findViewById(R.id.textDisplayName); // header.xml内のTextViewを取得
-        spinnerStockroom = headerView.findViewById(R.id.spinnerStockroom); // header.xml内のSpinnerを取得
-        Button buttonLogout = headerView.findViewById(R.id.buttonLogout); // header.xml内のButtonを取得
-        TextView textHeaderTitle = headerView.findViewById(R.id.textHeaderTitle); // header.xml内のTextViewを取得
-        textHeaderTitle.setText(R.string.main_menu_title); // ヘッダーのタイトルを設定
+        //HeaderManagerのインスタンスを作成
+        headerManager = new HeaderManager(this, headerView);
+        headerManager.initialize();
+        headerManager.getTextHeaderTitle().setText(R.string.main_menu_title); // ヘッダーのタイトルを設定
 
         // メインフィールドのボタンを取得
         buttonReceive = findViewById(R.id.buttonReceive);
@@ -68,10 +54,10 @@ public class MainMenuActivity extends AppCompatActivity {
         // ユーザー名を表示
         AuthManager authManager = new AuthManager(this);
         displayName = authManager.getDisplayName();
-        setDisplayName(textDisplayName);
+        headerManager.getTextDisplayName().setText(displayName);
 
         // ログアウトボタンのクリックリスナー
-        buttonLogout.setOnClickListener(v -> {
+        headerManager.getButtonLogout().setOnClickListener(v -> {
             authManager.logout();
             // ログイン画面に戻る
             Intent intentToMain = new Intent(MainMenuActivity.this, MainActivity.class);
@@ -91,11 +77,12 @@ public class MainMenuActivity extends AppCompatActivity {
         // 各ボタンのクリックリスナーを設定
         buttonReceive.setOnClickListener(v -> {
             // 入庫処理の画面に遷移する処理を記述
+            Stockroom selectedStockroom = headerManager.getSelectedStockroom();
             if (selectedStockroom != null) {
                 Intent intentToReceive = new Intent(MainMenuActivity.this, ReceiveActivity.class);
                 intentToReceive.putExtra("selectedStockroom", selectedStockroom); // Stockroomオブジェクトを渡す
                 intentToReceive.putExtra("displayName", displayName); // 表示名の情報を渡す
-                intentToReceive.putParcelableArrayListExtra("stockrooms", new ArrayList<>(stockrooms)); // Stockroomのリストを渡す
+                //intentToReceive.putParcelableArrayListExtra("stockrooms", new ArrayList<>(stockrooms)); // Stockroomのリストを渡す
                 startActivity(intentToReceive);
             } else {
                 Toast.makeText(this, "作業場所が選択されていません", Toast.LENGTH_SHORT).show();
@@ -117,29 +104,6 @@ public class MainMenuActivity extends AppCompatActivity {
             Toast.makeText(this, "出庫処理ボタンがクリックされました", Toast.LENGTH_SHORT).show();
             // 出庫処理の画面に遷移する処理を記述
         });
-
-        // Spinnerのアイテム選択時の処理
-        spinnerStockroom.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position > 0) { // ヒントアイテム以外が選択された場合
-                    String selectedName = (String) parent.getItemAtPosition(position);
-                    selectedStockroom = findStockroomByName(selectedName);
-                    if (selectedStockroom != null) {
-                        Log.d(TAG, "選択された作業場所: " + selectedStockroom.getName() + ", ID: " + selectedStockroom.getId());
-                    } else {
-                        Log.e(TAG, "選択された作業場所が見つかりません: " + selectedName);
-                    }
-                } else {
-                    selectedStockroom = null; // ヒントアイテムが選択された場合はnullにする
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                selectedStockroom = null;
-            }
-        });
     }
 
     private void fetchStockrooms() {
@@ -150,10 +114,8 @@ public class MainMenuActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<List<Stockroom>> call, @NonNull Response<List<Stockroom>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    stockrooms = response.body(); // APIから取得したStockroomのリストを保持
-                    ArrayAdapter<String> adapter = createSpinnerAdapter(stockrooms);
-                    spinnerStockroom.setAdapter(adapter);
-                    // setSpinnerStockroom(adapter); // この行を削除
+                    List<Stockroom> stockrooms = response.body(); // APIから取得したStockroomのリストを保持
+                    headerManager.setStockrooms(stockrooms);
                     buttonReceive.setEnabled(true); // API通信が完了したら有効化
                 } else {
                     Log.e(TAG, "APIからのデータ取得に失敗: " + response.message());
@@ -169,50 +131,5 @@ public class MainMenuActivity extends AppCompatActivity {
                 buttonReceive.setEnabled(true); // API通信が失敗しても有効化
             }
         });
-    }
-
-    private ArrayAdapter<String> createSpinnerAdapter(List<Stockroom> stockrooms) {
-        List<String> stockroomNames = new ArrayList<>();
-        stockroomNames.add(HINT_ITEM); // ヒント用のアイテムを先頭に追加
-        for (Stockroom stockroom : stockrooms) {
-            stockroomNames.add(stockroom.getName());
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainMenuActivity.this, android.R.layout.simple_spinner_item, stockroomNames) {
-            @Override
-            public boolean isEnabled(int position) {
-                // ヒント用のアイテムを選択不可にする
-                return position != 0;
-            }
-
-            @NonNull
-            @Override
-            public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if (position == 0) {
-                    // ヒント用のアイテムのテキストカラーを変更
-                    tv.setTextColor(Color.GRAY);
-                }
-                return view;
-            }
-        };
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        return adapter;
-    }
-
-    private void setDisplayName(TextView textDisplayName) {
-        textDisplayName.setText(displayName);
-    }
-
-    // 名前からStockroomオブジェクトを検索するメソッド
-    private Stockroom findStockroomByName(String name) {
-        if (stockrooms != null) {
-            for (Stockroom stockroom : stockrooms) {
-                if (stockroom.getName().equals(name)) {
-                    return stockroom;
-                }
-            }
-        }
-        return null;
     }
 }
