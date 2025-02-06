@@ -33,12 +33,15 @@ import retrofit2.Response;
 public class LoginDialogFragment extends DialogFragment {
 
     private static final String TAG = "LoginDialog";
+    private EditText editTextUsername;
+    private EditText editTextPassword;
     private Spinner spinnerLoginType;
     private AuthManager authManager;
     private LoginSuccessListener loginSuccessListener;
     private Button buttonLogin;
     private Button buttonSelectArea;
     private Workplace selectedWorkplace;
+    private User loginUser;
 
     public interface LoginSuccessListener {
         void onLoginSuccess(User user, int selectedWorkplaceId);
@@ -64,8 +67,8 @@ public class LoginDialogFragment extends DialogFragment {
         Log.d(TAG, "onCreateDialog: 開始");
         View view = getLayoutInflater().inflate(R.layout.activity_login, null);
 
-        EditText editTextUsername = view.findViewById(R.id.editTextUsername);
-        EditText editTextPassword = view.findViewById(R.id.editTextPassword);
+        editTextUsername = view.findViewById(R.id.editTextUsername);
+        editTextPassword = view.findViewById(R.id.editTextPassword);
         buttonLogin = view.findViewById(R.id.buttonLogin);
         spinnerLoginType = view.findViewById(R.id.spinnerLoginType);
         buttonSelectArea = view.findViewById(R.id.buttonSelectArea);
@@ -107,6 +110,7 @@ public class LoginDialogFragment extends DialogFragment {
                         // buttonLogin のテキストを「ログイン」に変更する
                         buttonLogin.setText(R.string.login_button);
                         Log.d(TAG, "buttonLogin: buttonLogin のテキストを「ログイン」に変更");
+                        loginUser = user;
                         //作業場所のリストを取得
                         fetchWorkplaces(user);
                     }
@@ -128,7 +132,8 @@ public class LoginDialogFragment extends DialogFragment {
                 Log.d(TAG, "buttonSelectArea: 作業場所が選択されています - 作業場所ID: " + selectedWorkplace.getId());
                 if (loginSuccessListener != null) {
                     Log.d(TAG, "buttonSelectArea: LoginSuccessListener が存在します");
-                    loginSuccessListener.onLoginSuccess(null, selectedWorkplace.getId()); // ユーザー情報はまだないのでnull
+                    loginUser.setWorkplaceId(selectedWorkplace.getId());
+                    loginSuccessListener.onLoginSuccess(loginUser, selectedWorkplace.getId());
                     Log.d(TAG, "buttonSelectArea: onLoginSuccess が呼び出されました");
                 }
                 dismiss(); // ダイアログを閉じる

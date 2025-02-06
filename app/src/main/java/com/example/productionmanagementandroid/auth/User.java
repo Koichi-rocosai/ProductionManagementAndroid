@@ -7,6 +7,7 @@ public class User implements Serializable {
     private String displayName;
     private String outsourcingId;
     private String accessToken;
+    private int workplaceId; // 追加
 
     // コンストラクタ、ゲッター、セッターなど
     public String getUsername() {
@@ -39,5 +40,25 @@ public class User implements Serializable {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    // 追加
+    public int getWorkplaceId() {
+        return workplaceId;
+    }
+
+    // 追加
+    public void setWorkplaceId(int workplaceId) {
+        this.workplaceId = workplaceId;
+    }
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", outsourcingId='" + outsourcingId + '\'' +
+                ", accessToken='" + accessToken + '\'' +
+                ", workplaceId=" + workplaceId +
+                '}';
     }
 }
