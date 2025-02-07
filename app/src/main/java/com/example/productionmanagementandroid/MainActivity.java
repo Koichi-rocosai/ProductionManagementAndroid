@@ -85,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
         startActivity(intent);
         // MainActivity を終了
         Log.d(TAG, "onLoginSuccess: MainActivity を終了");
-        finish();
-        Log.d(TAG, "onLoginSuccess: 終了");
+        finish();Log.d(TAG, "onLoginSuccess: 終了");
     }
 }

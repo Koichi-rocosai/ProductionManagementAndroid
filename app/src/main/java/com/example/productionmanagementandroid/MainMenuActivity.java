@@ -1,6 +1,8 @@
 package com.example.productionmanagementandroid;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +34,8 @@ public class MainMenuActivity extends AppCompatActivity {
 
     private static final String TAG = "MainMenuActivity";
     private static final String HINT_ITEM = "倉庫名を選択"; // ヒント用のアイテム
+    private static final String PREFS_NAME = "MyPrefs"; // SharedPreferences のファイル名
+    private static final String WORKPLACE_ID_KEY = "WorkplacesId"; // SharedPreferences に保存するキー
     private String selectedStockroomName = null; // 選択された作業場所の名前を保持
     private String displayName = null; // 表示名を保持
     private Spinner spinnerStockroom;
@@ -44,10 +48,19 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
+        // SharedPreferences から WorkplacesId を取得して Logcat に出力
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1
+        Log.d(TAG, "onCreate: SharedPreferences から取得した WorkplacesId: " + savedWorkplaceId);
+
         // Intentから作業場所の名前を受け取る
         Intent intent = getIntent();
         selectedStockroomName = intent.getStringExtra("selectedStockroomName");
         Log.d(TAG, "受け取った倉庫名: " + selectedStockroomName);
+
+        // IntentからselectedWorkplaceIdを受け取る
+        Integer selectedWorkplaceId = intent.getIntExtra("selectedWorkplaceId", -1);
+        Log.d(TAG, "onCreate: Intentから受け取ったselectedWorkplaceId: " + selectedWorkplaceId);
 
         // ヘッダーの要素を取得
         View headerView = findViewById(R.id.header); // header.xmlをincludeしたViewを取得
@@ -156,8 +169,7 @@ public class MainMenuActivity extends AppCompatActivity {
                     spinnerStockroom.setAdapter(adapter);
                     setSpinnerStockroom(adapter);
                     buttonReceive.setEnabled(true); // API通信が完了したら有効化
-                } else {
-                    Log.e(TAG, "APIからのデータ取得に失敗: " + response.message());
+                } else {Log.e(TAG, "APIからのデータ取得に失敗: " + response.message());
                     Toast.makeText(MainMenuActivity.this, "APIからのデータ取得に失敗", Toast.LENGTH_SHORT).show();
                     buttonReceive.setEnabled(true); // API通信が失敗しても有効化
                 }
