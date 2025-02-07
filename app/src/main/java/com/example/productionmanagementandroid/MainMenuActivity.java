@@ -25,6 +25,7 @@ import com.example.productionmanagementandroid.auth.StockroomApi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,6 +43,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private Button buttonReceive; // buttonReceiveをクラス変数として追加
     private List<Stockroom> stockrooms; // APIから取得したStockroomのリストを保持
     private Stockroom selectedStockroom; // 選択されたStockroomオブジェクトを保持
+    private int savedWorkplaceId; // SharedPreferencesから取得したWorkplacesIdを保持
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         // SharedPreferences から WorkplacesId を取得して Logcat に出力
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        int savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1
+        savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1
         Log.d(TAG, "onCreate: SharedPreferences から取得した WorkplacesId: " + savedWorkplaceId);
 
         // Intentから作業場所の名前を受け取る
@@ -169,7 +171,8 @@ public class MainMenuActivity extends AppCompatActivity {
                     spinnerStockroom.setAdapter(adapter);
                     setSpinnerStockroom(adapter);
                     buttonReceive.setEnabled(true); // API通信が完了したら有効化
-                } else {Log.e(TAG, "APIからのデータ取得に失敗: " + response.message());
+                } else {
+                    Log.e(TAG, "APIからのデータ取得に失敗: " + response.message());
                     Toast.makeText(MainMenuActivity.this, "APIからのデータ取得に失敗", Toast.LENGTH_SHORT).show();
                     buttonReceive.setEnabled(true); // API通信が失敗しても有効化
                 }
@@ -187,9 +190,21 @@ public class MainMenuActivity extends AppCompatActivity {
     private ArrayAdapter<String> createSpinnerAdapter(List<Stockroom> stockrooms) {
         List<String> stockroomNames = new ArrayList<>();
         stockroomNames.add(HINT_ITEM); // ヒント用のアイテムを先頭に追加
-        for (Stockroom stockroom : stockrooms) {
+
+        // WorkplacesId が -1 (未設定) でない場合のみフィルターを適用
+        List<Stockroom> filteredStockrooms = new ArrayList<>();
+        if (savedWorkplaceId != -1) {
+            filteredStockrooms = stockrooms.stream()
+                    .filter(stockroom -> stockroom.getWorkPlaceId() == savedWorkplaceId)
+                    .collect(Collectors.toList());
+        } else {
+            filteredStockrooms = stockrooms;
+        }
+
+        for (Stockroom stockroom : filteredStockrooms) {
             stockroomNames.add(stockroom.getName());
         }
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(MainMenuActivity.this, android.R.layout.simple_spinner_item, stockroomNames) {
             @Override
             public boolean isEnabled(int position) {
