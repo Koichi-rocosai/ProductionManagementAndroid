@@ -43,7 +43,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private Button buttonReceive; // buttonReceiveをクラス変数として追加
     private List<Stockroom> stockrooms; // APIから取得したStockroomのリストを保持
     private Stockroom selectedStockroom; // 選択されたStockroomオブジェクトを保持
-    private int savedWorkplaceId; // SharedPreferencesから取得したWorkplacesIdを保持
+    private String outsourcingId; // OutsourcingIdを保持
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +52,8 @@ public class MainMenuActivity extends AppCompatActivity {
 
         // SharedPreferences から WorkplacesId を取得して Logcat に出力
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1
-        Log.d(TAG, "onCreate: SharedPreferences から取得した WorkplacesId: " + savedWorkplaceId);
+        //savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1 //削除
+        //Log.d(TAG, "onCreate: SharedPreferences から取得した WorkplacesId: " + savedWorkplaceId); //削除
 
         // Intentから作業場所の名前を受け取る
         Intent intent = getIntent();
@@ -61,8 +61,8 @@ public class MainMenuActivity extends AppCompatActivity {
         Log.d(TAG, "受け取った倉庫名: " + selectedStockroomName);
 
         // IntentからselectedWorkplaceIdを受け取る
-        Integer selectedWorkplaceId = intent.getIntExtra("selectedWorkplaceId", -1);
-        Log.d(TAG, "onCreate: Intentから受け取ったselectedWorkplaceId: " + selectedWorkplaceId);
+        //Integer selectedWorkplaceId = intent.getIntExtra("selectedWorkplaceId", -1); //削除
+        //Log.d(TAG, "onCreate: Intentから受け取ったselectedWorkplaceId: " + selectedWorkplaceId); //削除
 
         // ヘッダーの要素を取得
         View headerView = findViewById(R.id.header); // header.xmlをincludeしたViewを取得
@@ -84,6 +84,7 @@ public class MainMenuActivity extends AppCompatActivity {
         // ユーザー名を表示
         AuthManager authManager = new AuthManager(this);
         displayName = authManager.getDisplayName();
+        outsourcingId = authManager.getOutsourcingId(); // OutsourcingIdを取得
         setDisplayName(textDisplayName);
 
         // ログアウトボタンのクリックリスナー
@@ -191,11 +192,17 @@ public class MainMenuActivity extends AppCompatActivity {
         List<String> stockroomNames = new ArrayList<>();
         stockroomNames.add(HINT_ITEM); // ヒント用のアイテムを先頭に追加
 
-        // WorkplacesId が -1 (未設定) でない場合のみフィルターを適用
-        List<Stockroom> filteredStockrooms = new ArrayList<>();
-        if (savedWorkplaceId != -1) {
+        List<Stockroom> filteredStockrooms;
+        // OutsourcingId がブランクでない場合のみフィルターを適用
+        if (!outsourcingId.isEmpty()) {
             filteredStockrooms = stockrooms.stream()
-                    .filter(stockroom -> stockroom.getWorkPlaceId() == savedWorkplaceId)
+                    .filter(stockroom -> {
+                        // stockroom.getOutsourcingId() が null の場合を考慮
+                        if (stockroom.getOutsourcingId() == null) {
+                            return false;
+                        }
+                        return stockroom.getOutsourcingId().equals(outsourcingId);
+                    })
                     .collect(Collectors.toList());
         } else {
             filteredStockrooms = stockrooms;

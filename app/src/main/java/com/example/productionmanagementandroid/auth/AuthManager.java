@@ -26,6 +26,7 @@ public class AuthManager {
     private static final String PREF_NAME = "AuthPrefs";
     private static final String ACCESS_TOKEN_KEY = "access_token";
     private static final String DISPLAY_NAME_KEY = "display_name";
+    private static final String OUTSOURCING_ID_KEY = "outsourcing_id"; // OutsourcingId を保存するためのキーを追加
 
     // コールバックインターフェース
     public interface LoginCallback {
@@ -97,7 +98,7 @@ public class AuthManager {
 
             String username = payload.optString("sub", "unknown");
             String displayName = payload.optString("DisplayName", "不明");
-            String outsourcingId = payload.optString("OutsourcingId", "なし");
+            String outsourcingId = payload.optString("OutsourcingId", ""); // デフォルト値を空文字列に変更
 
             Log.d(TAG, "ユーザー名(sub): " + username);
             Log.d(TAG, "表示名: " + displayName);
@@ -108,19 +109,26 @@ public class AuthManager {
             user.setOutsourcingId(outsourcingId);
             user.setAccessToken(token);
 
-            saveDisplayName(user);
+            saveUserInfo(user); // ユーザー情報を保存するメソッドを呼び出す
         } else {
             Log.e(TAG, "JWTの解析に失敗");
         }
         return user;
     }
 
-    private void saveDisplayName(User user) { // com.example.productionmanagementandroid.auth.User を引数に取るように変更
-        encryptedSharedPreferences.edit().putString(DISPLAY_NAME_KEY, user.getDisplayName()).apply();
+    private void saveUserInfo(User user) {
+        SharedPreferences.Editor editor = encryptedSharedPreferences.edit();
+        editor.putString(DISPLAY_NAME_KEY, user.getDisplayName());
+        editor.putString(OUTSOURCING_ID_KEY, user.getOutsourcingId()); // OutsourcingId を保存
+        editor.apply();
     }
 
     public String getDisplayName() {
         return encryptedSharedPreferences.getString(DISPLAY_NAME_KEY, null);
+    }
+
+    public String getOutsourcingId() {
+        return encryptedSharedPreferences.getString(OUTSOURCING_ID_KEY, ""); // OutsourcingId を取得
     }
 
     public void logout() {
