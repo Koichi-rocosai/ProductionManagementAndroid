@@ -2,6 +2,7 @@ package com.example.productionmanagementandroid.ui.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +34,9 @@ import retrofit2.Response;
 public class LoginDialogFragment extends DialogFragment {
 
     private static final String TAG = "LoginDialog";
+    private static final String PREFS_NAME = "MyPrefs"; // SharedPreferences のファイル名
+    private static final String WORKPLACE_ID_KEY = "WorkplacesId"; // SharedPreferences に保存するキー
+
     private EditText editTextUsername;
     private EditText editTextPassword;
     private Spinner spinnerLoginType;
@@ -44,7 +48,7 @@ public class LoginDialogFragment extends DialogFragment {
     private User loginUser;
 
     public interface LoginSuccessListener {
-        void onLoginSuccess(User user, int selectedWorkplaceId);
+        void onLoginSuccess(User user, Integer selectedWorkplaceId);
     }
 
     @Override
@@ -127,24 +131,35 @@ public class LoginDialogFragment extends DialogFragment {
 
         buttonSelectArea.setOnClickListener(v -> {
             Log.d(TAG, "buttonSelectArea: クリックされました");
+            Integer workplaceIdToSave = null; // null を許容する Integer 型に変更
             if (selectedWorkplace != null) {
                 // 作業場所が選択されている場合
                 Log.d(TAG, "buttonSelectArea: 作業場所が選択されています - [WORK_PLACE_ID]: " + selectedWorkplace.getId());
-                if (loginSuccessListener != null) {
-                    Log.d(TAG, "buttonSelectArea: LoginSuccessListener が存在します");
-                    loginUser.setWorkplaceId(selectedWorkplace.getId());
-                    // ダイアログを閉じる前にユーザー情報を Logcat に出力
-                    Log.d(TAG, "buttonSelectArea: ダイアログを閉じる前のユーザー情報: " + loginUser.toString());
-                    loginSuccessListener.onLoginSuccess(loginUser, selectedWorkplace.getId());
-                    Log.d(TAG, "buttonSelectArea: onLoginSuccess が呼び出されました");
-                }
-                dismiss(); // ダイアログを閉じる
-                Log.d(TAG, "buttonSelectArea: ダイアログを閉じます");
+                workplaceIdToSave = selectedWorkplace.getId();
+                loginUser.setWorkplaceId(selectedWorkplace.getId());
             } else {
                 // 作業場所が選択されていない場合
                 Log.w(TAG, "buttonSelectArea: 作業場所が選択されていません");
-                Toast.makeText(getActivity(), "作業場所を選択してください", Toast.LENGTH_SHORT).show();
             }
+            // SharedPreferences に保存
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (workplaceIdToSave != null) {
+                editor.putInt(WORKPLACE_ID_KEY, workplaceIdToSave);
+            } else {
+                editor.remove(WORKPLACE_ID_KEY); // null の場合はキーを削除
+            }
+            editor.apply();
+
+            if (loginSuccessListener != null) {
+                Log.d(TAG, "buttonSelectArea: LoginSuccessListener が存在します");
+                // ダイアログを閉じる前にユーザー情報を Logcat に出力
+                Log.d(TAG, "buttonSelectArea: ダイアログを閉じる前のユーザー情報: " + loginUser.toString());
+                loginSuccessListener.onLoginSuccess(loginUser, workplaceIdToSave);
+                Log.d(TAG, "buttonSelectArea: onLoginSuccess が呼び出されました");
+            }
+            dismiss(); // ダイアログを閉じる
+            Log.d(TAG, "buttonSelectArea: ダイアログを閉じます");
         });
 
         Log.d(TAG, "onCreateDialog: LoginDialogFragment が表示された");

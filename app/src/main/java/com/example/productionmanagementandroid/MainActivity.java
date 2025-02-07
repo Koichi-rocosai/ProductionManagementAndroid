@@ -56,10 +56,10 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
      * ログインが成功した際に呼び出される。
      *
      * @param user ログインしたユーザーの情報。
-     * @param selectedWorkplaceId 選択された作業場所のID
+     * @param selectedWorkplaceId 選択された作業場所のID (null の場合もあり)
      */
     @Override
-    public void onLoginSuccess(User user, int selectedWorkplaceId) {
+    public void onLoginSuccess(User user, Integer selectedWorkplaceId) {
         Log.d(TAG, "onLoginSuccess: 開始");
         // ログイン成功時の処理
         Log.d(TAG, "onLoginSuccess: ログイン成功 - MainMenuActivity に遷移");
