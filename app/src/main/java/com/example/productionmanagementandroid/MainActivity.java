@@ -1,6 +1,8 @@
 package com.example.productionmanagementandroid;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -21,6 +23,8 @@ import com.example.productionmanagementandroid.ui.dialogs.LoginDialogFragment;
 public class MainActivity extends AppCompatActivity implements LoginDialogFragment.LoginSuccessListener {
 
     private static final String TAG = "MainActivity";
+    private static final String PREFS_NAME = "MyPrefs"; // SharedPreferences のファイル名
+    private static final String WORKPLACE_ID_KEY = "WorkplacesId"; // SharedPreferences に保存するキー
 
     /**
      * アクティビティが作成される際に呼び出される。
@@ -42,6 +46,11 @@ public class MainActivity extends AppCompatActivity implements LoginDialogFragme
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // SharedPreferences から WorkplacesId を取得して Logcat に出力
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1
+        Log.d(TAG, "onCreate: SharedPreferences から取得した WorkplacesId: " + savedWorkplaceId);
 
         Log.d(TAG, "onCreate: アプリ起動 - LoginDialogFragment を表示");
 

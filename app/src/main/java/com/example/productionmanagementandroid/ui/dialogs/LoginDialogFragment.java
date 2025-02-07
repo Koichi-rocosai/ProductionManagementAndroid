@@ -151,6 +151,10 @@ public class LoginDialogFragment extends DialogFragment {
             }
             editor.apply();
 
+            // SharedPreferences から値を取得して Logcat に出力
+            int savedWorkplaceId = sharedPreferences.getInt(WORKPLACE_ID_KEY, -1); // デフォルト値は -1
+            Log.d(TAG, "buttonSelectArea: SharedPreferences に保存された WorkplacesId: " + savedWorkplaceId);
+
             if (loginSuccessListener != null) {
                 Log.d(TAG, "buttonSelectArea: LoginSuccessListener が存在します");
                 // ダイアログを閉じる前にユーザー情報を Logcat に出力
